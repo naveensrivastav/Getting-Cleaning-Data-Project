@@ -1,5 +1,6 @@
 # Getting-Cleaning-Data-Project
 #This is a Project for the Course 3 - Getting and Cleaning Data 
+
 run_analysis <- function()
 {
   library(dplyr)
