@@ -44,14 +44,12 @@ run_analysis <- function()
   {
     temp[[i]]<- temp[[i]][!is.na(temp[[i]])]
   }
-  
   temp<- do.call(rbind.data.frame, temp)
   colnames(temp) <- tcol
   rownames(temp)<- 1:nrow(temp)
   trainx<- temp
   
   ## Rbind  the two file Temp and Train 
-  
   test_train_rbind <- rbind(testx, trainx)
-  
+  write.table(test_train_rbind, "test_train_combined.txt",sep= " ", eol="\t", row.names = FALSE, col.names = FALSE)
 }
