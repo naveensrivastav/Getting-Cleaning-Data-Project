@@ -51,5 +51,5 @@ run_analysis <- function()
   
   ## Rbind  the two file Temp and Train 
   test_train_rbind <- rbind(testx, trainx)
-  write.table(test_train_rbind, "test_train_combined.txt",sep= " ", eol="\t", row.names = FALSE, col.names = FALSE)
+  write.table(test_train_rbind, "test_train_combined.txt",sep= " ", eol="\t", row.names = FALSE)
 }
