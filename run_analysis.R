@@ -1,55 +1,53 @@
 run_analysis <- function()
 {
   library(dplyr)
-  library(tidyr)
-  ## Getting the Column Names 
-  tcol <-  tcol<- read.delim(file.choose(), stringsAsFactors = FALSE, header= FALSE)
-  tcol<- separate(tcol, V1, into = c("SrNo","Feature"), sep = " ")
-  tcol <- tcol[,2]
+  library(data.table)
   
+  ##Setting the working directory to the folder which contains all the data folders
+    setwd("CP3")
+
+  ## Reading the files of TEST elements 
+  testx<- read.table("test/X_test.txt")
+  testy<-read.table("test/y_test.txt")
+  subject_test <- read.table("test/subject_test.txt")
   
-  ## Cleaning of Train X Data File 
-  testx<- read.delim(file.choose(),stringsAsFactors = FALSE, header = FALSE)
-  temp<- testx[[1]]
-  ##converting the fields as character
-  temp<- as.character(temp)
-  ## Separating the one big colummn to different column Space " " as seperator 
-  temp<- sapply(temp, strsplit, " ")
-  ## Replacing the junk values to be NA 
-  temp <- sapply(temp, na_if, "")
-  ## A loop for the records to remove the NA value out of the records 
-  for(i in 1:length(temp))
-  {
-    temp[[i]]<- temp[[i]][!is.na(temp[[i]])]
-  }
-  temp<- do.call(rbind.data.frame, temp)
-  colnames(temp) <- tcol
-  rownames(temp)<- 1:nrow(temp)
-  testx<- temp
+  ## Reading the files of Train elements 
+  trainx<- read.table("train/X_train.txt")
+  trainy<-read.table("train/y_train.txt")
+  subject_train <- read.table("train/subject_train.txt")
   
-  ##----------------------------------------------------------------------------
+  ## Readiing Feature and Activity 
+  feature <- read.table("features.txt")
+  feature$V2 <- as.character(feature$V2)
+  act_labels <- read.table("activity_labels.txt")
   
-  ## Cleaning of Train X Data File 
-  trainx <- read.delim(file.choose(), stringsAsFactors = FALSE, header = FALSE)
-  temp<- trainx[[1]]
-  ##converting the fields as character
-  temp<- as.character(temp)
-  ## Separating the one big colummn to different column Space " " as seperator
-  temp<- sapply(temp, strsplit, " ")
-  ## Replacing the junk values to be NA
-  temp <- sapply(temp, na_if, "")
+  ## Question 1 : Merges the training and the test sets to create one data set.
   
-  ## A loop for the records to remove the NA value out of the records 
-  for(i in 1:length(temp))
-  {
-    temp[[i]]<- temp[[i]][!is.na(temp[[i]])]
-  }
-  temp<- do.call(rbind.data.frame, temp)
-  colnames(temp) <- tcol
-  rownames(temp)<- 1:nrow(temp)
-  trainx<- temp
+  test_train <-rbind(trainx, testx)
+  activity <- rbind(trainy, testy)
+  subject <- rbind(subject_train, subject_test )
+  colnames(test_train) <- feature$V2
+
+  ## Remove the variable which are no longer required
+  remove(testx, testy, trainx, trainy,subject_train, subject_test )
   
-  ## Rbind  the two file Temp and Train 
-  test_train_rbind <- rbind(testx, trainx)
-  write.table(test_train_rbind, "test_train_combined.txt",sep= " ", eol="\t", row.names = FALSE)
+  ## Question 2 : Extracts only the measurements on the mean and standard deviation for each measurement.
+  
+  meanindices <- grep("\\bmean()\\b", colnames(test_train))
+  stdindices  <-grep("\\bstd()\\b", colnames(test_train))
+  indices     <- sort(unique(c(meanindices, stdindices)))
+  tidy_data <- test_train[,indices]
+  
+  ## Question 3 : Uses descriptive activity names to name the activities in the data set
+  activity<- factor(activity$V1,levels =  act_labels$V1, labels = act_labels$V2)
+  tidy_data <- data.table(subject, activity, tidy_data)
+  
+  ## Question 4: Appropriately labels the data set with descriptive variable names.
+  colnames(tidy_data) <- c("Subject", "Activity", feature[indices,2]) 
+
+
+  ## Question 5: From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+  final_tidy <-tidy_data %>% group_by(`Subject`,Activity) %>% summarize_all(mean)
+  
+write.csv(final_tidy , "final_tidy.txt")    
 }
