@@ -2,9 +2,10 @@ run_analysis <- function()
 {
   library(dplyr)
   library(data.table)
-  
+## Assuming the data is available in Document/CP3 Folder  
   ##Setting the working directory to the folder which contains all the data folders
-    setwd("CP3")
+     if(getwd() != "C:/Users/Admin/Documents/CP3")
+      setwd("CP3")
 
   ## Reading the files of TEST elements 
   testx<- read.table("test/X_test.txt")
