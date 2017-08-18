@@ -49,5 +49,5 @@ run_analysis <- function()
   ## Question 5: From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
   final_tidy <-tidy_data %>% group_by(`Subject`,Activity) %>% summarize_all(mean)
   
-write.csv(final_tidy , "final_tidy.txt")    
+write.csv(final_tidy , "final_tidy.txt", rownames=FALSE)    
 }
